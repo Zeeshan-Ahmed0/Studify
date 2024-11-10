@@ -1,12 +1,94 @@
 import streamlit as st
 import os
+import time
 from groq import Groq
 
+st.markdown(
+    """
+    <style>
+    /* General background and text styles */
+    html, body, [data-testid="stAppViewContainer"] {
+        background-image: linear-gradient(to bottom right, 
+    rgba(135, 206, 250, 0.8),  /* Light Sky Blue */
+    rgba(255, 223, 186, 0.8),  /* Soft Peach */
+    rgba(192, 192, 192, 0.8),  /* Bright Silver */
+    rgba(169, 169, 169, 0.8),  /* Gray */
+    rgba(240, 248, 255, 0.8),  /* Alice Blue */
+    rgba(173, 216, 230, 0.8)   /* Light Blue */
+);
+
+
+        background-size: cover;
+        font-family: 'Arial', sans-serif;
+    }
+
+    /* Header slide-right animation */
+    @keyframes slide-right {
+        0% {
+            transform: translateX(-100%); /* Start off-screen to the left */
+        }
+        100% {
+            transform: translateX(0); /* End at the normal position */
+        }
+    }
+
+    /* Header slide-left animation */
+    @keyframes slide-left {
+        0% {
+            transform: translateX(100%); /* Start off-screen to the right */
+        }
+        100% {
+            transform: translateX(0); /* End at the normal position */
+        }
+    }
+
+    /* Header slide-right animation for the title */
+    .header-slide-right {
+        display: inline-block;
+        animation: slide-right 2s ease-out;
+    }
+
+    /* Subtitle slide-left animation */
+    .header_description {
+        display: inline-block;
+        animation: slide-left 2s ease-out;
+    }
+
+    /* Button styles */
+    .stButton button {
+        background-color: #333333;
+        color: white;
+        border: 2px solid black;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .stButton button:hover {
+        background-color: #333;
+    }
+    .stSelectbox select {
+        background-color: #333333;
+        color: white;
+        border: 2px solid black;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+    .stSelectbox select:hover {
+        background-color: #555555;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
 client = Groq(api_key=("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"))
-
 ss = st.session_state
+session_vars = ["area", "subject", "subtopic", "level" , "tone", "language", "explanation", "mcqs", "answers", "feedback", "topic"]
 
-session_vars = ["area", "subject","subtopic" "level" , "tone", "language" "explanation", "mcqs", "answers", "feedback", "topic"]
 for var in session_vars:
     ss.setdefault(var, None)
 
@@ -18,25 +100,22 @@ def get_response(prompt):
     return chat_completion.choices[0].message.content
 
 def main_interface():
-    st.title("Studify")
-    st.markdown("###### Study the way you want")
+    st.markdown('<h1 class="header-slide-right">Studify</h1>', unsafe_allow_html=True)
+    st.markdown('<h6 class="header_description">Learn the way you like!</h6>', unsafe_allow_html=True)
+    time.sleep(2)
 
     if not ss.topic:
         area = st.radio(
-            "Options:",("Select a Subject", "Search Manually", "Upload a Picture"), horizontal = True)
+            "Options:",("Select a Subject", "Search Manually"), horizontal = True)
         if area == "Select a Subject":
             st.write("Choose a subject from the list to explore specific topics and exercises.")
         elif area == "Search Manually":
             st.write("Use the search bar to manually find specific content or topics.")
-        elif area == "Upload a Picture":
-            st.write("Upload an image to analyze and receive relevant content or exercises.")
+        
         ss.area = area
                     
         if ss.area == "Search Manually":
             topic = st.text_input("Type any kind of subject or topic you want to learn about:")
-            
-        elif ss.area == "Upload a Picture":
-            pass
             
         elif ss.area == "Select a Subject":
             topics = {
@@ -142,10 +221,9 @@ def main_interface():
             subject = st.selectbox("Choose a subject:", list(topics.keys()))
             topic = st.radio(f"Choose a topic for {subject}:", list(topics[subject].keys()))
             subtopic = st.selectbox(f"Choose a subtopic for {topic}:", topics[subject][topic])
-                
+
         if ss.area:
-            st.header(f"Please select your proficiency level in the selected topic:")
-            level = st.radio("Select Level", ("Beginner", "Intermediate", "Advanced"), horizontal=True)
+            level = st.radio("Please select your proficiency level in the selected topic:", ("Beginner", "Intermediate", "Advanced"), horizontal=True)
             
             if st.button("Continue"):
                 if ss.area == "Select a Subject":
@@ -154,15 +232,15 @@ def main_interface():
                 ss.level = level
                 ss.topic = topic
                 st.rerun()
-            
+
     if ss.topic:
         if st.button("⬅️ Go Back", key="back", help="Go back"):
             for var in session_vars:
                 if var != "area":
                     setattr(ss, var, None)
             st.rerun()
-            
-        tone = st.radio("Kindly select the way you want to learn the selected topic:",("Simple and easy", "Humorous and Fun", "Interesting and Engaging", "Detailed", "Storytelling"),horizontal = True)
+
+        tone = st.radio("Kindly select the way you want to learn the selected topic:",("Simple and easy", "Interesting and Engaging", "Detailed", "Storytelling"),horizontal = True)
         
         language = st.radio("Kindly select the Language you want to learn the selected topic:",("English", "Roman Urdu", "Hindi", "Urdu"),horizontal = True)
                     
@@ -193,9 +271,10 @@ def main_interface():
                 answer = st.text_area("Write your answers here:", height=120, placeholder="Please attempt the answers like:\n1. A\n2. C\n3. B..." )
                 if st.button("Submit Answers"):
                     ss.answers = answer
-                    feedback_prompt = f"Evaluate and provide concise feedback in simple words on the following answers to the questions related to '{ss.topic}.'\nThe explanation used to explain the topic is: '{ss.explanation}.'\nThe mcqs are: '{ss.mcqs}.'\nThe answers given by me are: '{ss.answers}.'\nSpecify how many ansers are correct, if the answers are none or irrelevant say something like: 'Kindly give the answers correctly', and if there are some answers missing then specify which ones and request that they be done."
+                    feedback_prompt = f"Evaluate and provide concise feedback in simple words on the following answers to the questions related to '{ss.topic}.'\nThe explanation used to explain the topic is: '{ss.explanation}.'\nThe mcqs are: '{ss.mcqs}.'\nThe answers given by me are: '{ss.answers}.'\nSpecify how many ansers are correct strictly accurately, if the answers are none or irrelevant say something like: 'Kindly give the answers correctly', and if there are some answers missing then specify which ones and request that they be done."
                     ss.feedback = get_response(feedback_prompt)
                     st.subheader("Feedback")
-                    st.write(ss.feedback)   
+                    st.write(ss.feedback)
+                
                 
 main_interface()
