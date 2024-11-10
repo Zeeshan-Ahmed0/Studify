@@ -6,7 +6,7 @@ client = Groq(api_key=("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
 
 ss = st.session_state
 
-session_vars = ["level", "subject", "tone", "explanation", "mcqs", "answers", "feedback", "topic"]
+session_vars = ["area", "subject","subtopic" "level" , "tone", "language" "explanation", "mcqs", "answers", "feedback", "topic"]
 for var in session_vars:
     ss.setdefault(var, None)
 
@@ -20,60 +20,166 @@ def get_response(prompt):
 def main_interface():
     st.title("Studify")
     st.markdown("###### Study the way you want")
-    subject = st.sidebar.radio(
-        "Choose a subject",
-        ("English", "Mathematics", "Science", "Social Studies", "History", "Islamiat", "Physics", "Chemistry", "Biology", "Computer Science"))
 
-    if st.sidebar.button("Proceed"):
-        for var in session_vars:
-            setattr(ss, var, None)
-        ss.subject = subject
+    if not ss.topic:
+        area = st.radio(
+            "Options:",("Select a Subject", "Search Manually", "Upload a Picture"), horizontal = True)
+        if area == "Select a Subject":
+            st.write("Choose a subject from the list to explore specific topics and exercises.")
+        elif area == "Search Manually":
+            st.write("Use the search bar to manually find specific content or topics.")
+        elif area == "Upload a Picture":
+            st.write("Upload an image to analyze and receive relevant content or exercises.")
+        ss.area = area
+                    
+        if ss.area == "Search Manually":
+            topic = st.text_input("Type any kind of subject or topic you want to learn about:")
             
-    if ss.subject and not ss.topic:
-        st.header(f"Kindly select the {ss.subject} topic you want to learn about:")
-        
-        if ss.subject == "English":
-            topic = st.radio("Options:", ["Grammar", "Vocabulary", "Reading Comprehension", "Essay Writing", "Literature Analysis", "Creative Writing", "Speaking", "Poetry Analysis"], index=0)
-        elif ss.subject == "Mathematics":
-            topic = st.radio("Options:", ["Word Problems", "Algebra", "Geometry", "Trignometry", "Fractions", "Percentages" , "Arithmetic Operations"], index=0)
-        elif ss.subject == "Science":
-            topic = st.radio("Options:", ["Human Body Systems", "Atomic structure", "Ecosystems", "Forces and Motion", "States of Matter", "Energy and Work", "Plants", "Solar System"], index=0)
-        elif ss.subject == "Social Studies":
-            topic = st.radio("Options:", ["International Organizations","Climate Change","Government and Democracy", "Human Rights and Responsibilities", "Population Studies", "World Cultures", "Religions", "Globalization and Trade"], index=0)
-        elif ss.subject == "History":
-            topic = st.radio("Options:", ["Islamic History", "Sub-Continent History", "European History", "American History", "Ancient Civilizations", "Turkish (Ottoman) History", "World Wars"], index=0)
-        elif ss.subject == "Islamiat":
-            topic = st.radio("Options:", ["Life of Prophet Muhammad (PBUH)", "Five Pillars of Islam", "The Quran", "Hadith", "Major Prophets", "Shariah Law", "Jihad", "Islamic Ethics"], index=0)
-        elif ss.subject == "Physics":
-            topic = st.radio("Options:", ["Mechanics (Force, Motion)", "Electricity", "Magnetism", "Thermodynamics", "Optics (Light and Mirrors)", "Waves and Sound","Kinematics (Velocity, Acceleration)"], index=0)
-        elif ss.subject == "Chemistry":
-            topic = st.radio("Options:", ["Atomic Structure", "Periodic Table", "Chemical Bonding", "Acids, Bases, and Salts", "Chemical Reactions", "Organic Chemistry", "Biochiometry","Solutions and Mixtures"], index=0)
-        elif ss.subject == "Biology":
-            topic = st.radio("Options:", ["Human Systems", "Cell Structure and Function", "Genetics and Heredity", "Human Anatomy and Physiology", "Plant Biology", "Microorganisms", "Animal Kingdom"], index=0)
-        elif ss.subject == "Computer Studies":
-            topic = st.radio("Options:", ["Programming Languages", "Programming Fundamentals", "Algorithms and Data Structures", "Basics of Databases", "Computer Hardware and Software", "Networking Basics", "Cybersecurity Essentials", "Artificial Intelligence Basics", "Operating Systems"], index=0)
+        elif ss.area == "Upload a Picture":
+            pass
             
-        
-        st.header(f"Please select your proficiency level in {ss.subject}")
-        level = st.radio("Select Level", ("Beginner", "Intermediate", "Advanced"), horizontal=True)
-        
-        tone = st.radio("Kindly select the way you want to learn the selected topic:",
-            ("Simple and easy", "Humorous and Fun", "Interesting and Engaging", "Detailed", "Storytelling"))
+        elif ss.area == "Select a Subject":
+            topics = {
+            "English": {
+                "Grammar": ["Grammar", "Tenses", "Parts of Speech", "Sentence Structure", "Active Passive Voice", "Direct Indirect"],
+                "Vocabulary": ["Vocabulary", "Synonyms", "Antonyms", "Prefixes/ Suffixes", "Homophones"],
+                "Reading Comprehension": ["Reading Comprehension", "Essay Reading", "Story Reading", "New Article Reading"],
+                "Essay Writing": ["Essay Writing", "Introduction", "Body Paragraphs", "Conclusion"],
+                "Literature Analysis": ["Literature Analysis", "Poetry", "Non-fiction", "Novels", "Dramas"],
+                "Creative Writing": ["Creative Writing", "Story Writing", "Dialogue Writing", "Script Writing"],
+                "Speaking": ["Speaking", "Conversational", "Interviews", "Debate", "Public Speaking"],
+                "Poetry Analysis": ["Poetry Analysis", "Rhythm", "Meter", "Imagery"]
+            },
+            "Maths": {
+                "Word Problems": ["Word Problems", "Distance-Speed-Time", "Age Problems", "Work and Time", "Probability Problems"],
+                "Algebra": ["Algebra", "Linear Equations", "Quadratic Equations", "Polynomials", "Exponents", "Factoring"],
+                "Geometry": ["Geometry", "Lines and Angles", "Triangles", "Circles", "Surface Area and Volume", "Coordinate Geometry"],
+                "Trigonometry": ["Trigonometry", "Trigonometric Ratios", "Sine, Cosine, Tangent", "Trigonometric Identities", "Height and Distance"],
+                "Fractions": ["Fractions", "Simplifying Fractions", "Adding/Subtracting Fractions", "Multiplying/Dividing Fractions", "Mixed Numbers"],
+                "Percentages": ["Percentages", "Percentage Increase/Decrease", "Discounts", "Profit and Loss", "Interest Calculation"],
+                "Arithmetic Operations": ["Arithmetic Operations", "Addition", "Subtraction", "Multiplication", "Division", "Order of Operations (BODMAS)"]
+            },
+            "Science": {
+                "Human Body Systems": ["Human Body Systems", "Circulatory System", "Respiratory System", "Nervous System", "Muscular System", "Digestive System"],
+                "Atomic structure": ["Atomic structure", "Atoms", "Protons, Neutrons, Electrons", "Electron Configurations", "Periodic Table"],
+                "Ecosystems": ["Ecosystems", "Food Chains", "Energy Flow", "Ecological Pyramids", "Biomes", "Environmental Factors"],
+                "Forces and Motion": ["Forces and Motion", "Newton's Laws", "Friction", "Work and Energy", "Acceleration"],
+                "States of Matter": ["States of Matter", "Solids", "Liquids", "Gases", "Plasma", "Changes in State"],
+                "Energy and Work": ["Energy and Work", "Kinetic Energy", "Potential Energy", "Work-Energy Theorem", "Power"],
+                "Plants": ["Plants", "Photosynthesis", "Plant Reproduction", "Plant Anatomy", "Types of Plants"],
+                "Solar System": ["Solar System", "Planets", "Moons", "Asteroids", "Comets", "The Sun"]
+            },
+            "Social Studies": {
+                "International Organizations": ["International Organizations", "United Nations", "World Health Organization", "World Bank", "International Monetary Fund"],
+                "Climate Change": ["Climate Change", "Global Warming", "Carbon Footprint", "Effects of Climate Change", "Mitigation Strategies"],
+                "Government and Democracy": ["Government and Democracy", "Types of Governments", "Democratic Systems", "Elections", "Political Rights"],
+                "Human Rights and Responsibilities": ["Human Rights and Responsibilities", "Rights of Citizens", "International Human Rights", "Social Justice"],
+                "Population Studies": ["Population Studies", "Population Growth", "Demographic Transition", "Urbanization", "Migration"],
+                "World Cultures": ["World Cultures", "Cultural Diversity", "Globalization", "Cultural Identity", "Traditions and Customs"],
+                "Religions": ["Religions", "Christianity", "Islam", "Hinduism", "Buddhism", "Judaism"],
+                "Globalization and Trade": ["Globalization and Trade", "International Trade", "Economic Interdependence", "Trade Agreements", "Global Markets"]
+            },
+            "History": {
+                "Islamic History": ["Islamic History", "The Origin of Humanity", "Early Islamic Civilization", "Golden Age of Islam", "Islamic Empires"],
+                "Sub-Continent History": ["Sub-Continent History", "Ancient India", "Mughal Empire", "British India", "Partition of India"],
+                "European History": ["European History", "Ancient Greece", "Roman Empire", "Middle Ages", "World Wars"],
+                "American History": ["American History", "Colonial America", "American Revolution", "Civil War", "Modern America"],
+                "Ancient Civilizations": ["Ancient Civilizations", "Mesopotamia", "Ancient Egypt", "Indus Valley Civilization", "Ancient China"],
+                "Turkish (Ottoman) History": ["Turkish History", "Ottoman Empire", "Suleiman the Magnificent", "Decline of the Ottoman Empire"],
+                "World Wars": ["World Wars", "World War I", "World War II", "Causes of War", "Aftermath and Consequences"]
+            },
+            "Islamiat": {
+                "Life of Prophet Muhammad (PBUH)": ["Life of Prophet Muhammad (PBUH)", "Birth and Early Life", "Prophethood", "Migration to Medina", "The Farewell Sermon"],
+                "Five Pillars of Islam": ["Five Pillars of Islam", "Shahada", "Salah", "Zakat", "Sawm", "Hajj"],
+                "The Quran": ["The Quran", "Revelation", "Surahs", "Ayahs", "Exegesis of the Quran"],
+                "Hadith": ["Hadith", "Types of Hadith", "Sahih Hadith", "Prophet's Sayings"],
+                "Major Prophets": ["Major Prophets", "Prophet Adam (AS)", "Prophet Nuh (AS)" "Prophet Ibrahim (AS)", "Prophet Musa (AS)", "Prophet Isa (AS)", "Prophet Yusuf (AS)", "Prophet Muhammad (PBUH)"],
+                "Shariah Law": ["Shariah Law", "Islamic Jurisprudence", "Rights and Duties", "Islamic Criminal Law"],
+                "Jihad": ["Jihad", "Types of Jihad", "Jihad in Islam", "Jihad and Peace","The reality of Jihad"],
+                "Islamic Ethics": ["Islamic Ethics", "Moral Teachings", "Rights of Others", "Social Justice in Islam"]
+            },
+            "Physics": {
+                "Mechanics (Force, Motion)": ["Mechanics", "Newton's Laws", "Force", "Momentum", "Circular Motion"],
+                "Electricity": ["Electricity", "Ohm's Law", "Circuits", "Electric Current", "Electromagnetic Fields"],
+                "Magnetism": ["Magnetism", "Magnetic Fields", "Electromagnetic Induction", "Magnets", "Magnetic Force"],
+                "Thermodynamics": ["Thermodynamics", "Laws of Thermodynamics", "Heat Transfer", "Entropy", "Internal Energy"],
+                "Optics (Light and Mirrors)": ["Optics", "Reflection", "Refraction", "Lenses", "Optical Instruments"],
+                "Waves and Sound": ["Waves and Sound", "Wave Properties", "Sound Waves", "Wave Interference", "Doppler Effect"],
+                "Kinematics": ["Kinematics", "Velocity", "Acceleration", "Free Fall", "Projectile Motion"]
+            },
+            "Chemistry": {
+                "Atomic Structure": ["Atomic Structure", "Atoms", "Protons, Neutrons, Electrons", "Electron Configuration", "Periodic Table"],
+                "Periodic Table": ["Periodic Table", "Elements", "Groups and Periods", "Metals and Nonmetals", "Periodic Trends"],
+                "Chemical Bonding": ["Chemical Bonding", "Ionic Bonds", "Covalent Bonds", "Metallic Bonds", "Molecular Geometry"],
+                "Acids, Bases, and Salts": ["Acids, Bases, and Salts", "Properties of Acids and Bases", "Neutralization", "pH Scale"],
+                "Chemical Reactions": ["Chemical Reactions", "Types of Reactions", "Balancing Equations", "Reaction Rates"],
+                "Organic Chemistry": ["Organic Chemistry", "Hydrocarbons", "Alcohols", "Aldehydes and Ketones", "Polymerization"],
+                "Biochiometry": ["Biochemistry", "Proteins", "Carbohydrates", "Lipids", "Nucleic Acids"],
+                "Solutions and Mixtures": ["Solutions and Mixtures", "Solubility", "Concentration", "Types of Solutions"]
+            },
+            "Biology": {
+                "Human Systems": ["Human Systems", "Circulatory System", "Digestive System", "Respiratory System", "Excretory System"],
+                "Cell Structure and Function": ["Cell Structure and Function", "Prokaryotic Cells", "Eukaryotic Cells", "Cell Organelles", "Cell Membrane"],
+                "Genetics and Heredity": ["Genetics", "DNA", "Gene Expression", "Inheritance", "Genetic Disorders"],
+                "Human Anatomy and Physiology": ["Human Anatomy and Physiology", "Musculoskeletal System", "Nervous System", "Endocrine System"],
+                "Plant Biology": ["Plant Biology", "Photosynthesis", "Plant Cells", "Plant Reproduction", "Plant Growth"],
+                "Microorganisms": ["Microorganisms", "Bacteria", "Viruses", "Fungi", "Algae"],
+                "Animal Kingdom": ["Animal Kingdom", "Vertebrates", "Invertebrates", "Mammals", "Amphibians"]
+            },
+            "Computer Studies": {
+                "Programming Languages": ["Programming Languages", "Python", "Java", "C++", "JavaScript", "Ruby", "Swift"],
+                "Programming Fundamentals": ["Programming Fundamentals", "Variables", "Loops", "Conditionals", "Functions"],
+                "Algorithms and Data Structures": ["Algorithms", "Sorting", "Searching", "Arrays", "Linked Lists"],
+                "Basics of Databases": ["Databases", "SQL", "Relational Databases", "Normalization", "Database Management"],
+                "Computer Hardware and Software": ["Computer Hardware", "CPU", "RAM", "Motherboard", "Operating Systems"],
+                "Networking Basics": ["Networking Basics", "IP Addressing", "Subnetting", "Routing", "Switching"],
+                "Cybersecurity Essentials": ["Cybersecurity", "Encryption", "Firewall", "Malware", "Ethical Hacking"],
+                "Artificial Intelligence Basics": ["AI Basics", "Machine Learning", "Neural Networks", "Natural Language Processing", "Computer Vision"],
+                "Operating Systems": ["Operating Systems", "Linux", "Windows", "MacOS", "File Systems", "Process Management"]
+            }
+        }
 
-        if st.button("Let's Learn"):
-            ss.level = level
-            ss.topic = topic
-            ss.tone = tone
-            st.rerun()
+            subject = st.selectbox("Choose a subject:", list(topics.keys()))
+            topic = st.radio(f"Choose a topic for {subject}:", list(topics[subject].keys()))
+            subtopic = st.selectbox(f"Choose a subtopic for {topic}:", topics[subject][topic])
+                
+        if ss.area:
+            st.header(f"Please select your proficiency level in the selected topic:")
+            level = st.radio("Select Level", ("Beginner", "Intermediate", "Advanced"), horizontal=True)
+            
+            if st.button("Continue"):
+                if ss.area == "Select a Subject":
+                    ss.subject = subject
+                    ss.subtopic = subtopic
+                ss.level = level
+                ss.topic = topic
+                st.rerun()
             
     if ss.topic:
-        if st.button("⬅️ Back", key="back", help="Go back"):
+        if st.button("⬅️ Go Back", key="back", help="Go back"):
             for var in session_vars:
-                if var != "subject":
+                if var != "area":
                     setattr(ss, var, None)
             st.rerun()
+            
+        tone = st.radio("Kindly select the way you want to learn the selected topic:",("Simple and easy", "Humorous and Fun", "Interesting and Engaging", "Detailed", "Storytelling"),horizontal = True)
         
-        explanation_prompt = f"Explain the topic '{ss.topic}' briefly in a '{ss.tone}' manner related to '{ss.subject}' at a '{ss.level}' level.\nDon't add any intro"
+        language = st.radio("Kindly select the Language you want to learn the selected topic:",("English", "Roman Urdu", "Hindi", "Urdu"),horizontal = True)
+                    
+        if st.button("Let's Learn"):
+            ss.tone = tone
+            ss.language = language
+            ss.explanation = None
+            ss.answers = None
+            ss.feedback = None
+            ss.mcqs = None
+            
+    if ss.tone:
+        if ss.area == "Select a Subject":
+            explanation_prompt = f"Provide an explanation on '{ss.subtopic}' related to '{ss.topic}', in a '{ss.tone}' tone, suitable for a '{ss.level}' level learner, strictly in '{ss.language}'. Avoid introductory phrases."
+        elif ss.area == "Search Manually":
+            explanation_prompt = f"Explain the topic {ss.topic}' in a '{ss.tone}' manner at the '{ss.level} level strictly in '{ss.language}'.\nDon't add any intro"
+        
         ss.explanation = get_response(explanation_prompt)
         st.write(ss.explanation)
         
