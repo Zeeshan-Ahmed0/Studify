@@ -85,7 +85,7 @@ st.markdown(
 )
 
 
-client = Groq(api_key=("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"))
+client = Groq(api_key=("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"))
 ss = st.session_state
 session_vars = ["area", "subject", "subtopic", "level" , "tone", "language", "explanation", "mcqs", "answers", "feedback", "topic"]
 
